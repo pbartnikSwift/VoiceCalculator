@@ -123,22 +123,29 @@ class ViewController: UIViewController {
     }
     
     func evaluate(text:String){
-        let pattern = "([-+]?[0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)"
+        //([-+]?[0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)
+        let pattern = "([0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)"
         var string = text
         
         string = string.replacingOccurrences(of: "\u{00D7}", with: "*")
         string = string.replacingOccurrences(of: "\u{00F7}", with: "/")
         
-        print(string)
-        if let range = string.range(of:pattern, options: .regularExpression) {
-            var result = string.substring(with:range)
-            print("=======")
-            print(result)
-
-            let expn = NSExpression(format:result)
-            print(expn.expressionValue(with: nil, context: nil)!)
-            print("=======")
+        if String(string.characters.prefix(4)) == "One "{
+            string = string.replacingOccurrences(of: "One ", with: "1")
         }
+        print(string)
+        
+        guard let range = string.range(of:pattern, options: .regularExpression) else {return}
+        
+        var result = string.substring(with:range)
+        print("=======")
+        
+        
+        let expn = NSExpression(format:result)
+        print(result)
+        print(expn.expressionValue(with: nil, context: nil)!)
+        print("=======")
+        
         
     }
     

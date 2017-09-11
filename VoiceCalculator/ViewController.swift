@@ -13,7 +13,7 @@ class ViewController: UIViewController {
 
     @IBOutlet fileprivate weak var recordButton: UIButton!
     
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US"))!
+    private let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US_POSIX"))!
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
@@ -22,7 +22,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         self.speechRecognizer.delegate = self
-        
         SFSpeechRecognizer.requestAuthorization { (authStatus) in
             
             if authStatus == .authorized{
@@ -35,6 +34,8 @@ class ViewController: UIViewController {
                 }
             }
         }
+        
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -43,13 +44,17 @@ class ViewController: UIViewController {
     }
     
     @IBAction func speechRecognizerButtonTapped(_ sender: Any) {
+        var title = "enter the mathematical operation"
         if self.audioEngine.isRunning {
             self.audioEngine.stop()
             self.recognitionTask?.cancel()
-            self.recordButton.titleLabel?.text = "enter the mathematical operation"
         } else {
-            self.recordButton.titleLabel?.text = "End"
+            title = "End"
             self.recordSpeech()
+        }
+        
+        OperationQueue.main.addOperation {
+            self.recordButton.titleLabel?.text = title
         }
     }
 
@@ -88,7 +93,8 @@ class ViewController: UIViewController {
             if result != nil {
                 
                 print(result!.bestTranscription.formattedString)
-                
+
+                self.evaluate(text: result!.bestTranscription.formattedString)
                 isFinal = (result?.isFinal)!
             }
             
@@ -115,6 +121,27 @@ class ViewController: UIViewController {
             print("audioEngine couldn't start.")
         }
     }
+    
+    func evaluate(text:String){
+        let pattern = "([-+]?[0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)"
+        var string = text
+        
+        string = string.replacingOccurrences(of: "\u{00D7}", with: "*")
+        string = string.replacingOccurrences(of: "\u{00F7}", with: "/")
+        
+        print(string)
+        if let range = string.range(of:pattern, options: .regularExpression) {
+            var result = string.substring(with:range)
+            print("=======")
+            print(result)
+
+            let expn = NSExpression(format:result)
+            print(expn.expressionValue(with: nil, context: nil)!)
+            print("=======")
+        }
+        
+    }
+    
 }
 
 extension ViewController: SFSpeechRecognizerDelegate {

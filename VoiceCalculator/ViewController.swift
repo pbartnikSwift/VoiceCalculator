@@ -13,10 +13,22 @@ class ViewController: UIViewController {
 
     @IBOutlet fileprivate weak var recordButton: UIButton!
     
+    @IBOutlet weak var actualOperation: UILabel!
+    
+    @IBOutlet weak var lastOperationsTableView: UITableView!
+    
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US_POSIX"))!
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
+    
+    struct HistoryElement {
+        var operation:String
+        var result:String
+    }
+    
+    fileprivate var lastOperations = [HistoryElement]()
+    fileprivate var lastOperation = HistoryElement(operation: "", result: "")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +60,13 @@ class ViewController: UIViewController {
         if self.audioEngine.isRunning {
             self.audioEngine.stop()
             self.recognitionTask?.cancel()
+            
+            if self.lastOperation.operation != "" {
+                //self.lastOperations.append(self.lastOperation)
+                self.lastOperations.insert(self.lastOperation, at: 0)
+                self.lastOperationsTableView.reloadData()
+                self.lastOperation.operation = ""
+            }
         } else {
             title = "End"
             self.recordSpeech()
@@ -55,6 +74,7 @@ class ViewController: UIViewController {
         
         OperationQueue.main.addOperation {
             self.recordButton.titleLabel?.text = title
+            self.actualOperation.text = ""
         }
     }
 
@@ -91,9 +111,6 @@ class ViewController: UIViewController {
             var isFinal = false
             
             if result != nil {
-                
-                print(result!.bestTranscription.formattedString)
-
                 self.evaluate(text: result!.bestTranscription.formattedString)
                 isFinal = (result?.isFinal)!
             }
@@ -124,29 +141,30 @@ class ViewController: UIViewController {
     
     func evaluate(text:String){
         //([-+]?[0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)
-        let pattern = "([0-9]*\\.?[0-9]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)"
+        let pattern = "([0-9]*\\.?[0-9]+[\\\u{00F7}\\+\\-\\\u{00D7}])+([-+]?[0-9]*\\.?[0-9]+)"
         var string = text
-        
-        string = string.replacingOccurrences(of: "\u{00D7}", with: "*")
-        string = string.replacingOccurrences(of: "\u{00F7}", with: "/")
         
         if String(string.characters.prefix(4)) == "One "{
             string = string.replacingOccurrences(of: "One ", with: "1")
         }
-        print(string)
         
         guard let range = string.range(of:pattern, options: .regularExpression) else {return}
         
-        var result = string.substring(with:range)
-        print("=======")
+        let operationUnicode = string.substring(with:range)
+        self.actualOperation.text = operationUnicode
+        
+        var operation = "1.0*"+operationUnicode
+        
+        operation = operation.replacingOccurrences(of: "\u{00D7}", with: "*")
+        operation = operation.replacingOccurrences(of: "\u{00F7}", with: "/")
         
         
-        let expn = NSExpression(format:result)
-        print(result)
-        print(expn.expressionValue(with: nil, context: nil)!)
-        print("=======")
+        let expn = NSExpression(format:operation)
+        guard let result = expn.expressionValue(with: nil, context: nil) else {return}
         
-        
+        self.actualOperation.text = "\(operationUnicode) = \(result)"
+        self.lastOperation.operation = operationUnicode
+        self.lastOperation.result = "\(result)"
     }
     
 }
@@ -156,6 +174,25 @@ extension ViewController: SFSpeechRecognizerDelegate {
         OperationQueue.main.addOperation {
             self.recordButton.isEnabled = available
         }
+    }
+}
+
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.lastOperations.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "operationCell", for: indexPath) as? OperationCell else {
+            return UITableViewCell()
+        }
+        
+        cell.set(operation: self.lastOperations[indexPath.row].operation, result: self.lastOperations[indexPath.row].result)
+        return cell
     }
 }
 

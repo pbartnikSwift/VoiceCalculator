@@ -14,6 +14,7 @@
 		04A2685A1F6583D100549519 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04A268581F6583D100549519 /* LaunchScreen.storyboard */; };
 		04A268651F6583D100549519 /* VoiceCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A268641F6583D100549519 /* VoiceCalculatorTests.swift */; };
 		04A268701F6583D100549519 /* VoiceCalculatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A2686F1F6583D100549519 /* VoiceCalculatorUITests.swift */; };
+		04A2687E1F67EBCB00549519 /* OperationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A2687D1F67EBCB00549519 /* OperationCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		04A2686B1F6583D100549519 /* VoiceCalculatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceCalculatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		04A2686F1F6583D100549519 /* VoiceCalculatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCalculatorUITests.swift; sourceTree = "<group>"; };
 		04A268711F6583D100549519 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		04A2687D1F67EBCB00549519 /* OperationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 				04A268561F6583D100549519 /* Assets.xcassets */,
 				04A268581F6583D100549519 /* LaunchScreen.storyboard */,
 				04A2685B1F6583D100549519 /* Info.plist */,
+				04A2687D1F67EBCB00549519 /* OperationCell.swift */,
 			);
 			path = VoiceCalculator;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04A2687E1F67EBCB00549519 /* OperationCell.swift in Sources */,
 				04A268521F6583D100549519 /* ViewController.swift in Sources */,
 				04A268501F6583D100549519 /* AppDelegate.swift in Sources */,
 			);
